@@ -15,6 +15,7 @@ module uart #
 );
 
   `CONVERT_BUS_MODE
+  `PROXY_BUS_DATA
 
   typedef enum bit `WIDE(4){
     BUS_IDLE      = 4'h1,
@@ -50,13 +51,6 @@ module uart #
   //ro rxdata
   reg `WIDE(`XLEN) uart_rxdata;
   
-  reg `WIDE(`XLEN) bus_dat_o_r;
-  
-  genvar gi;
-  generate
-    for (gi = 0; gi < 4; gi = gi + 1)
-      assign `BITRANGE(bus_dat_o, (gi+1)*(`XLEN/4), gi*(`XLEN/4)) = rl_mode[gi] ? `BITRANGE(bus_dat_o_r, (gi+1)*(`XLEN/4), gi*(`XLEN/4)) : {(`XLEN/4){1'b0}};
-  endgenerate
 
   integer i;
 
@@ -64,7 +58,9 @@ module uart #
   assign bus_ready = 1'b1;
 
   //read registers
-  always @(posedge clk) begin
+  `ALWAYS_CR begin
+    if (~rst) begin
+    end
     case (`BITRANGE(bus_addr, 5, 2))
       UART_CTRL:    bus_dat_o_r <= uart_ctrl;
       UART_STATUS:  bus_dat_o_r <= uart_status;
@@ -75,17 +71,17 @@ module uart #
   end
   
   //write registers
-  always @(*) begin
-    case (`BITRANGE(bus_addr, 5, 2))
-      // UART_CTRL:
-        // if (rl_mode[0])
-          // uart_ctrl = bus_dat_i[1:0]
-      
-      // UART_STATUS:  uart_status = rl_mode[0] ? ;
-      // UART_BAUD:    bus_dat_o_r = uart_baud;
-      // UART_TXDATA:  bus_dat_o_r = '0;
-      default: ;
-    endcase
+  `ALWAYS_CR begin
+    // case (`BITRANGE(bus_addr, 5, 2))
+    //   UART_CTRL: 
+    //     uart_ctrl <= bus_dat_i;
+    //   UART_STATUS: begin `RECEIVE_BUS_DATA(uart_status) end
+    //   UART_BAUD: begin `RECEIVE_BUS_DATA(uart_baud) end
+    //   UART_TXDATA: begin 
+    //     `RECEIVE_BUS_DATA(uart_txdata)
+    //   end
+    //   default: ;
+    // endcase
   end
 
   always @(posedge clk) begin

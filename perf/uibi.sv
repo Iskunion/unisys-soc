@@ -66,10 +66,21 @@ endmodule
   wire `WIDE(`XLEN/8) rl_mode;\
   mode_convertor convertor_0(bus_mode, `BITRANGE(bus_addr, 2, 0), rl_mode);
 
+
+`define PROXY_BUS_DATA\
+  reg `WIDE(`XLEN) bus_dat_o_r;\
+  genvar gi;\
+  generate\
+    for (gi = 0; gi < 4; gi = gi + 1)\
+      assign `BITRANGE(bus_dat_o, (gi+1)*(`XLEN/4), gi*(`XLEN/4)) = rl_mode[gi] ? `BITRANGE(bus_dat_o_r, (gi+1)*(`XLEN/4), gi*(`XLEN/4)) : {(`XLEN/4){1'b0}};\
+  endgenerate
+
 //to use this you should have an integer i in the context
 `define RECEIVE_BUS_DATA(name)\
-  for (i = 0; i < 4; i = i + 1)\
-    if (rl_mode[i])\
-      `BITRANGE(name, (i+1)*(`XLEN/4), i*(`XLEN/4)) <= `BITRANGE(bus_dat_i, (i+1)*(`XLEN/4), i*(`XLEN/4))
+    `BITRANGE(name, 1*(`XLEN/4), 0*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 1*(`XLEN/4), 0*(`XLEN/4));\
+    `BITRANGE(name, 2*(`XLEN/4), 1*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 2*(`XLEN/4), 1*(`XLEN/4));\
+    `BITRANGE(name, 3*(`XLEN/4), 2*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 3*(`XLEN/4), 2*(`XLEN/4));\
+    `BITRANGE(name, 4*(`XLEN/4), 3*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 4*(`XLEN/4), 3*(`XLEN/4));
+
 
 `endif

@@ -14,4 +14,6 @@
 `define BITRANGE(name, hi, lo) name[((hi)-1):(lo)]
 `define WIDE(xlen) [((xlen)-1):0]
 
+`define ALWAYS_CR always @(posedge clk, negedge rst)
+
 `endif
