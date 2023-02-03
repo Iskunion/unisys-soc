@@ -2,6 +2,12 @@
 `define _UIB
 `include "common.sv"
 
+// interface uibstd(
+
+// );
+
+// endinterface
+
 //A simple bus interface for devices
 module uib(
   //master side

@@ -1,22 +1,15 @@
 `ifndef _CPU
 `define _CPU
-`include "common.sv"
+`include "uibi.sv"
 `include "core.sv"
 `include "mmu.sv"
 
 //cpu: core with mmu integrated
 module cpu(
-  input   wire                              clk,
-  input   wire                              rst,
-  input   wire                              intr,
-  input   wire  `WIDE(`XLEN)                bus_dat_i,
-  output  wire  `WIDE(`XLEN)                bus_dat_o,
-  output  wire  `WIDE(`XLEN - `SLAVE_WIDTH) bus_addr,
-  output  wire  `WIDE(`SLAVE_WIDTH)         bus_num,
-  output  wire                              bus_req,
-  output  wire                              bus_wen,
-  output  wire  `WIDE(3)                    bus_mode,
-  input   wire                              bus_ready
+  input wire clk,
+  input wire rst,
+  input wire intr,
+  `UIBI_MASTER
 );
 
   //core output/mmu input signals
@@ -54,7 +47,7 @@ module cpu(
     .bus_req(bus_req),
     .bus_wen(bus_wen),
     .bus_mode(bus_mode),
-    .bus_ready_i(bus_ready)
+    .bus_ready(bus_ready)
   );
 
 endmodule

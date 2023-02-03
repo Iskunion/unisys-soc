@@ -1,6 +1,8 @@
 `include "cpu.sv"
 `include "uib.sv"
 `include "perfs.sv"
+`include "uibi.sv"
+`include "mainmem.sv"
 
 module unisys(
   input   wire    clk,
@@ -47,14 +49,14 @@ module unisys(
     .rst(rst),
     //never trigger interuption
     .intr(1'b0),
-    .bus_dat_i(master_dat_o[`CPU_NO]),
-    .bus_dat_o(master_dat_i[`CPU_NO]),
-    .bus_addr(master_addr[`CPU_NO]),
-    .bus_num(master_num[`CPU_NO]),
-    .bus_req(master_req[`CPU_NO]),
-    .bus_wen(master_wen[`CPU_NO]),
-    .bus_mode(master_mode[`CPU_NO]),
-    .bus_ready(master_ready[`CPU_NO])
+    `STDMASTER(CPU)
+  );
+
+  //slaves
+  mainmem mainmem_0(
+    .clk(clk),
+    .rst(rst),
+    `STDSLAVE(MAINMEM)
   );
 
 endmodule
