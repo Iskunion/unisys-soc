@@ -1,3 +1,4 @@
+//unisys internal bus interface
 `ifndef _UIBI
 `define _UIBI
 
@@ -45,5 +46,30 @@
   .bus_wen(slave_wen[`NAME``_NO]),\
   .bus_mode(slave_mode[`NAME``_NO]),\
   .bus_ready(slave_ready[`NAME``_NO])
+
+module mode_convertor(
+  input wire `WIDE(3) bus_mode,
+  input wire `WIDE(2) bus_addr,
+  output wire `WIDE(`XLEN/8) rl_mode
+);
+
+  wire `WIDE(`XLEN/8) tr_mode;
+  assign `BITRANGE(tr_mode, (`XLEN/8),  (`XLEN/16)) = {(`XLEN/16){bus_mode[2]}};
+  assign `BITRANGE(tr_mode, (`XLEN/16), (`XLEN/32)) = {(`XLEN/32){bus_mode[1]}};
+  assign `BITRANGE(tr_mode, (`XLEN/32), 0)          = {(`XLEN/32){bus_mode[0]}};
+
+  assign rl_mode = tr_mode << ((bus_addr[1] ? (`XLEN/16) : 0) + (bus_addr[0] ? (`XLEN/32) : 0));
+
+endmodule
+
+`define CONVERT_BUS_MODE\
+  wire `WIDE(`XLEN/8) rl_mode;\
+  mode_convertor convertor_0(bus_mode, `BITRANGE(bus_addr, 2, 0), rl_mode);
+
+//to use this you should have an integer i in the context
+`define RECEIVE_BUS_DATA(name)\
+  for (i = 0; i < 4; i = i + 1)\
+    if (rl_mode[i])\
+      `BITRANGE(name, (i+1)*(`XLEN/4), i*(`XLEN/4)) <= `BITRANGE(bus_dat_i, (i+1)*(`XLEN/4), i*(`XLEN/4))
 
 `endif

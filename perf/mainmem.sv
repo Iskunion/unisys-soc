@@ -16,13 +16,7 @@ module mainmem (
   `UIBI_SLAVE
 );
 
-  wire `WIDE(`XLEN/8) tr_mode;
-  assign `BITRANGE(tr_mode, (`XLEN/8),  (`XLEN/16)) = {(`XLEN/16){bus_mode[2]}};
-  assign `BITRANGE(tr_mode, (`XLEN/16), (`XLEN/32)) = {(`XLEN/32){bus_mode[1]}};
-  assign `BITRANGE(tr_mode, (`XLEN/32), 0)          = {(`XLEN/32){bus_mode[0]}};
-
-  wire `WIDE(`XLEN/8) rl_mode;
-  assign rl_mode = tr_mode << ((bus_addr[1] ? (`XLEN/16) : 0) + (bus_addr[0] ? (`XLEN/32) : 0));
+  `CONVERT_BUS_MODE
 
   genvar i;
   generate

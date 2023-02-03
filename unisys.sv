@@ -3,6 +3,8 @@
 `include "perfs.sv"
 `include "uibi.sv"
 `include "mainmem.sv"
+`include "uart.sv"
+`include "timer.sv"
 
 module unisys(
   input   wire    clk,
@@ -57,6 +59,18 @@ module unisys(
     .clk(clk),
     .rst(rst),
     `STDSLAVE(MAINMEM)
+  );
+
+  uart uart_0(
+    .clk(clk),
+    .rst(rst),
+    `STDSLAVE(UART)
+  );
+
+  timer timer_0(
+    .clk(clk),
+    .rst(rst),
+    `STDSLAVE(TIMER)
   );
 
 endmodule
