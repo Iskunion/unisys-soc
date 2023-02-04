@@ -3,6 +3,8 @@
 
 `include "uibi.sv"
 
+`define UART_ADDR `BITRANGE(bus_addr, 5, 2)
+
 module uart #
 (
   parameter clock_freq = 100000000,
@@ -47,6 +49,7 @@ module uart #
 
   //wo txdata
   reg `WIDE(`XLEN) uart_txdata;
+  reg tx_vaild, tx_ready;
   
   //ro rxdata
   reg `WIDE(`XLEN) uart_rxdata;
@@ -54,39 +57,75 @@ module uart #
 
   integer i;
 
+  reg rx_ready;
   //dont need to hold on
-  assign bus_ready = 1'b1;
+  assign bus_ready = bus_wen ? 1'b1 : rx_ready;
 
   //read registers
   `ALWAYS_CR begin
-    if (~rst) begin
-    end
-    case (`BITRANGE(bus_addr, 5, 2))
-      UART_CTRL:    bus_dat_o_r <= uart_ctrl;
-      UART_STATUS:  bus_dat_o_r <= uart_status;
-      UART_BAUD:    bus_dat_o_r <= uart_baud;
-      UART_RXDATA:  bus_dat_o_r <= uart_rxdata;
-      default:      bus_dat_o_r <= '0;
-    endcase
+    if (~rst)
+      bus_dat_o_r <= '0;
+    else if (~bus_req)
+      bus_dat_o_r <= '0; 
+    else
+      case (`UART_ADDR)
+        UART_CTRL:    bus_dat_o_r <= uart_ctrl;
+        UART_STATUS:  bus_dat_o_r <= uart_status;
+        UART_BAUD:    bus_dat_o_r <= uart_baud;
+        UART_RXDATA:  bus_dat_o_r <= uart_rxdata;
+        default:      bus_dat_o_r <= '0;
+      endcase
   end
   
   //write registers
   `ALWAYS_CR begin
-    // case (`BITRANGE(bus_addr, 5, 2))
-    //   UART_CTRL: 
-    //     uart_ctrl <= bus_dat_i;
-    //   UART_STATUS: begin `RECEIVE_BUS_DATA(uart_status) end
-    //   UART_BAUD: begin `RECEIVE_BUS_DATA(uart_baud) end
-    //   UART_TXDATA: begin 
-    //     `RECEIVE_BUS_DATA(uart_txdata)
-    //   end
-    //   default: ;
-    // endcase
+    if (~rst) begin
+      uart_ctrl   <= '0;
+      uart_status <= '0;
+      uart_baud   <= baud_clock_nr;
+      uart_rxdata <= '0;
+      uart_txdata <= '0;
+    end else if(bus_req && bus_wen) begin
+      case (`UART_ADDR)
+        UART_CTRL: uart_ctrl <= bus_dat_i;
+        UART_STATUS: uart_status[1] <= bus_dat_i[1];
+        UART_BAUD: uart_baud <= bus_dat_i;
+        UART_TXDATA: begin 
+          if (uart_ctrl[0] && ~uart_status[0]) begin
+            `RECEIVE_BUS_DATA(uart_txdata)
+            tx_vaild <= 1'b1;
+            //set tx busy
+            uart_status[0] <= 1'b1;
+          end
+        end
+        default: ;
+      endcase
+    end else begin
+      tx_vaild <= 1'b0;
+      if (tx_ready)
+        uart_status[0] <= 1'b0;
+      // if (uart_ctrl[1])
+    end
+    
   end
 
-  always @(posedge clk) begin
+  //tx valid
+  `ALWAYS_CR begin
     if (~rst) begin
-      
+      tx_vaild <= '0;
+    end else if(bus_wen) begin
+      if((`UART_ADDR == UART_TXDATA) && uart_ctrl[0] && ~uart_status[0])
+        tx_vaild <= 1'b1;
+      else tx_vaild <= 1'b0;
+    end
+  end
+
+  //tx stm
+  reg `WIDE(16) cycle_cnt;
+  `ALWAYS_CR begin
+    if (~rst) begin
+      state <= BUS_IDLE;
+      cycle_cnt <= '0;
     end
   end
 

@@ -77,10 +77,15 @@ endmodule
 
 //to use this you should have an integer i in the context
 `define RECEIVE_BUS_DATA(name)\
-    `BITRANGE(name, 1*(`XLEN/4), 0*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 1*(`XLEN/4), 0*(`XLEN/4));\
-    `BITRANGE(name, 2*(`XLEN/4), 1*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 2*(`XLEN/4), 1*(`XLEN/4));\
-    `BITRANGE(name, 3*(`XLEN/4), 2*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 3*(`XLEN/4), 2*(`XLEN/4));\
-    `BITRANGE(name, 4*(`XLEN/4), 3*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 4*(`XLEN/4), 3*(`XLEN/4));
-
+  begin\
+    if (rl_mode[0])\
+      `BITRANGE(name, 1*(`XLEN/4), 0*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 1*(`XLEN/4), 0*(`XLEN/4));\
+    if (rl_mode[1])\
+      `BITRANGE(name, 2*(`XLEN/4), 1*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 2*(`XLEN/4), 1*(`XLEN/4));\
+    if (rl_mode[2])\
+      `BITRANGE(name, 3*(`XLEN/4), 2*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 3*(`XLEN/4), 2*(`XLEN/4));\
+    if (rl_mode[3])\
+      `BITRANGE(name, 4*(`XLEN/4), 3*(`XLEN/4)) <= `BITRANGE(bus_dat_i, 4*(`XLEN/4), 3*(`XLEN/4));\
+  end
 
 `endif
