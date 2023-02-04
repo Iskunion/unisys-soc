@@ -37,7 +37,8 @@ module timer #
   reg `WIDE(`XLEN) intr_nr;
 
   //internal count
-  reg `WIDE(`XLEN) cnt_us, cnt_s, cnt_intr;
+  reg `WIDE(`XLEN) cnt_s, cnt_intr;
+  reg `WIDE(10) cnt_us;
 
   initial begin
     nowtime <= 32'h63DE120D;
@@ -53,7 +54,7 @@ module timer #
         cnt_us <= '0;
         stamp  <= stamp + 32'b1;
       end 
-      else cnt_us <= cnt_us + 32'b1;
+      else cnt_us <= cnt_us + 10'b1;
     end
   end
 
@@ -99,7 +100,7 @@ module timer #
   //nowtime increase 1 per sec and writeable
   `ALWAYS_CR begin
     if (~rst)
-      nowtime <= '0;
+      nowtime <= 32'h63DE120D;
     else begin
       if (bus_req && bus_wen && (`TIMER_ADDR == TIMER_NOWTIME))
         `RECEIVE_BUS_DATA(nowtime)

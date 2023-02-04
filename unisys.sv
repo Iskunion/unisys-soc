@@ -24,6 +24,9 @@ module unisys(
   wire `WIDE(`SLAVE_SIZE) `WIDE(3) slave_mode;
   wire `WIDE(`SLAVE_SIZE) slave_wen, slave_req, slave_ready;
 
+  //intr
+  wire intr;
+
   //the bus
   uib uib_0(
     .master_dat_i(master_dat_i),
@@ -50,7 +53,7 @@ module unisys(
     .clk(clk),
     .rst(rst),
     //never trigger interuption
-    .intr(1'b0),
+    .intr(intr),
     `STDMASTER(CPU)
   );
 
@@ -70,6 +73,7 @@ module unisys(
   timer timer_0(
     .clk(clk),
     .rst(rst),
+    .intr(intr),
     `STDSLAVE(TIMER)
   );
 
