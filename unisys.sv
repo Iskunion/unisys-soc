@@ -8,7 +8,9 @@
 
 module unisys(
   input   wire    clk,
-  input   wire    rst
+  input   wire    rst,
+  input   wire    uart_rx,
+  output  wire    uart_tx
 );
 
   //master busio
@@ -67,6 +69,8 @@ module unisys(
   uart uart_0(
     .clk(clk),
     .rst(rst),
+    .tx_line(uart_tx),
+    .rx_line(uart_rx),
     `STDSLAVE(UART)
   );
 
