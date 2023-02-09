@@ -12,8 +12,10 @@
 `AMOUNT(RIBADDR, (`XLEN-`SLAVE_WIDTH))
 
 `define BITRANGE(name, hi, lo) name[((hi)-1):(lo)]
+`define SEXT(name, hi, lo, supplement)\
+  {{supplement{name[(hi)-1]}}, `BITRANGE(name, hi, lo)}
 `define WIDE(xlen) [((xlen)-1):0]
 
-`define ALWAYS_CR always @(posedge clk, negedge rst)
+`define ALWAYS_CR always_ff @(posedge clk, negedge rst)
 
 `endif

@@ -12,7 +12,7 @@
 `define UART_NO     1
 `define TIMER_NO    2
 `define VGA_NO      3
-`define MEM_NO      5
+`define GMEM_NO     5
 `define SD_NO       6
 `define AUDIO_NO    7
 
