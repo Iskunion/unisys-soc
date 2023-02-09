@@ -30,23 +30,7 @@ module unisys(
   wire intr;
 
   //the bus
-  uib uib_0(
-    .master_dat_i(master_dat_i),
-    .master_dat_o(master_dat_o),
-    .master_addr(master_addr),
-    .master_num(master_num),
-    .master_req(master_req),
-    .master_wen(master_wen),
-    .master_mode(master_mode),
-    .master_ready(master_ready),
-    .slave_dat_i(slave_dat_i),
-    .slave_dat_o(slave_dat_o),
-    .slave_addr(slave_addr),
-    .slave_req(slave_req),
-    .slave_wen(slave_wen),
-    .slave_mode(slave_mode),
-    .slave_ready(slave_ready)
-  );
+  uib uib_0 (.*);
 
   //masters
 

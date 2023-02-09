@@ -15,10 +15,10 @@ module decode(
   output reg               ALUext,
   output reg  `WIDE(2)     alu_sela,
   output reg  `WIDE(2)     alu_selb,
-  output reg               mem_wen,
-  output reg               reg_wen,
+  output reg               mem_wr,
+  output reg               reg_wr,
   output wire              mem_load,
-  output reg  `WIDE(3)     mem_mode,
+  output reg  `WIDE(3)     mem_opt,
   output reg               mem_signed,
   output reg  `WIDE(3)     branch
 );
@@ -95,16 +95,16 @@ module decode(
   //mem_load
   assign mem_load = (op == `INST_TYPE_L) ? 1'b1 : 1'b0;
 
-  //mem_wen
-  assign mem_wen  = (op == `INST_TYPE_S) ? 1'b1 : 1'b0;
+  //mem_wr
+  assign mem_wr  = (op == `INST_TYPE_S) ? 1'b1 : 1'b0;
 
-  //reg_wen
+  //reg_wr
   always @(*) begin
     case (op)
       `INST_TYPE_L, `INST_TYPE_R_M, `INST_TYPE_I, `INST_JAL, `INST_JALR:
-        reg_wen = 1'b1;
+        reg_wr = 1'b1;
       default:
-        reg_wen = 1'b0;
+        reg_wr = 1'b0;
     endcase
   end
 
@@ -115,14 +115,14 @@ module decode(
     else mem_signed = 1'b0;
   end
 
-  //mem_mode
+  //mem_opt
   always @(*) begin
     if (op == `INST_TYPE_S || op == `INST_TYPE_L) begin
       case (inst[13:12])
-        `MEM_BYTE: mem_mode = 3'b001;
-        `MEM_HALF: mem_mode = 3'b011;
-        `MEM_WORD: mem_mode = 3'b111;
-        default:   mem_mode = '0;
+        `MEM_BYTE: mem_opt = 3'b001;
+        `MEM_HALF: mem_opt = 3'b011;
+        `MEM_WORD: mem_opt = 3'b111;
+        default:   mem_opt = '0;
       endcase
     end
   end
