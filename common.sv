@@ -17,5 +17,6 @@
 `define WIDE(xlen) [((xlen)-1):0]
 
 `define ALWAYS_CR always_ff @(posedge clk, negedge rst)
+`define ALWAYS_NCR always_ff @(negedge clk, negedge rst)
 
 `endif

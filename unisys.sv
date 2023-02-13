@@ -45,13 +45,13 @@ module unisys(
 
   //slaves
   mainmem mainmem_0(
-    .clk(clk),
+    .clk(~clk),
     .rst(rst),
     `STDSLAVE(MAINMEM)
   );
 
   uart uart_0(
-    .clk(clk),
+    .clk(~clk),
     .rst(rst),
     .tx_line(uart_tx),
     .rx_line(uart_rx),
@@ -59,7 +59,7 @@ module unisys(
   );
 
   timer timer_0(
-    .clk(clk),
+    .clk(~clk),
     .rst(rst),
     .intr(intr),
     `STDSLAVE(TIMER)

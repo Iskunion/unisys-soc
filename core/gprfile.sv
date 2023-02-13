@@ -17,14 +17,16 @@ module gprfile(
   integer i;
 
   reg `WIDE(`XLEN) gprs[32];
-  `ALWAYS_CR begin
+  `ALWAYS_NCR begin
     if (~rst) begin
       for (i = 0; i < 32; i = i + 1)
         gprs[i] <= '0;
     end
     else begin
-      if (reg_wnum && reg_wen)
-        gprs[i] <= rwdata;
+      if (reg_wnum && reg_wen) begin
+        $display("write %h into %d", rwdata, reg_wnum);
+        gprs[reg_wnum] <= rwdata;
+      end
     end
   end
 

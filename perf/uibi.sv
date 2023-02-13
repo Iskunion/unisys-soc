@@ -47,6 +47,12 @@
   .bus_mode(slave_mode[`NAME``_NO]),\
   .bus_ready(slave_ready[`NAME``_NO])
 
+//bus modes
+`define BUS_FULL  3'b111
+`define BUS_HALF  3'b011
+`define BUS_QUAR  3'b001
+`define BUS_NULL  3'b000
+
 module mode_convertor(
   input wire `WIDE(3) bus_mode,
   input wire `WIDE(2) bus_addr,

@@ -83,16 +83,15 @@
 
 // J type inst
 
-`define INST_NOP    32'h00000001
+
 `define INST_NOP_OP 7'b0000001
+`define INST_FENCE  7'b0001111
+
+`define INST_NOP    32'h00000001
 `define INST_MRET   32'h30200073
 `define INST_RET    32'h00008067
-
-`define INST_FENCE  7'b0001111
-`define INST_ECALL  32'h73
+`define INST_ECALL  32'h00000073
 `define INST_EBREAK 32'h00100073
-
-// J type inst
 
 `define INST_BEQ    3'b000
 `define INST_BNE    3'b001

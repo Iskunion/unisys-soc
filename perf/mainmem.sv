@@ -21,7 +21,12 @@ module mainmem (
   genvar i;
   generate
     for (i = 0; i < `SLICE_NR_SIZE; i = i + 1) begin: ram
-      ram internal_ram(
+      ram #(
+        .width(`DAT_WIDTH),
+        .size(`SLICE_SIZE),
+        .addr_width(`SLICE_WIDTH),
+        .ram_no(i)
+      ) internal_ram(
         .addr(`BITRANGE(bus_addr, `MEM_WIDTH , `SLICE_NR_WIDTH)),
         .datain(`BITRANGE(bus_dat_i, (i+1)*`DAT_WIDTH, i*`DAT_WIDTH)),
         .dataout(`BITRANGE(bus_dat_o, (i+1)*`DAT_WIDTH, i*`DAT_WIDTH)),
@@ -39,7 +44,8 @@ endmodule
 module ram #(
     parameter width       =   `DAT_WIDTH,
     parameter size        =   `SLICE_SIZE,
-    parameter addr_width  =   `SLICE_WIDTH
+    parameter addr_width  =   `SLICE_WIDTH,
+    parameter ram_no      =   0
 )(
     input   wire    `WIDE(addr_width)   addr,
     input   wire    `WIDE(width)        datain,
@@ -65,7 +71,13 @@ module ram #(
         if (en && wen)
             memory[addr] <= datain;
     initial begin
-        $readmemh("C:/Users/Bardi/Work/Hardware/Shadow/memories/VRAM_templates/shizuku1.memory", memory, 0, size - 1);
+        case (ram_no)
+          0: $readmemh("C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data0.txt", memory, 0, size-1);
+          1: $readmemh("C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data1.txt", memory, 0, size-1);
+          2: $readmemh("C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data2.txt", memory, 0, size-1);
+          3: $readmemh("C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data3.txt", memory, 0, size-1);
+          default: ;
+        endcase
     end
 endmodule
 

@@ -3,6 +3,7 @@
 
 `include "common.sv"
 `include "coredefs.sv"
+`include "uibi.sv"
 
 //decode module
 module decode(
@@ -28,11 +29,11 @@ module decode(
   //imm
   always @(*) begin
     case (op)
-      `INST_TYPE_I, `INST_TYPE_L:
+      `INST_TYPE_I, `INST_TYPE_L, `INST_JALR:
         imm = {{21{inst[31]}}, inst[30:20]};
       `INST_LUI, `INST_AUIPC:
         imm = {inst[31:12], 12'h0};
-      `INST_JAL, `INST_JALR:
+      `INST_JAL:
         imm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
       `INST_TYPE_R_M:
         imm = '0;
@@ -53,9 +54,15 @@ module decode(
   //alu
   always @(*) begin
     case (op)
-      `INST_TYPE_R_M, `INST_TYPE_I: begin
+      `INST_TYPE_R_M: begin
         ALUctr = inst[14:12];
         ALUext = inst[30];
+      end
+      `INST_TYPE_I: begin
+        ALUctr = inst[14:12];
+        if (inst[14:12] == `ALU_SR)
+          ALUext = inst[30];
+        else ALUext = '0;
       end
       `INST_TYPE_B: begin
         ALUctr = (inst[14:13] == 2'b11) ? `ALU_SLTU : `ALU_SLT;
@@ -85,7 +92,7 @@ module decode(
     case (op)
       `INST_JAL, `INST_JALR:
         alu_selb = `ALU_B_FOUR;
-      `INST_TYPE_S, `INST_TYPE_L, `INST_TYPE_I:
+      `INST_TYPE_S, `INST_TYPE_L, `INST_TYPE_I, `INST_AUIPC, `INST_LUI:
         alu_selb = `ALU_B_IMM;
       default:
         alu_selb = `ALU_B_REG;
@@ -101,7 +108,7 @@ module decode(
   //reg_wr
   always @(*) begin
     case (op)
-      `INST_TYPE_L, `INST_TYPE_R_M, `INST_TYPE_I, `INST_JAL, `INST_JALR:
+      `INST_TYPE_L, `INST_TYPE_R_M, `INST_TYPE_I, `INST_JAL, `INST_JALR, `INST_AUIPC, `INST_LUI:
         reg_wr = 1'b1;
       default:
         reg_wr = 1'b0;
@@ -119,12 +126,12 @@ module decode(
   always @(*) begin
     if (op == `INST_TYPE_S || op == `INST_TYPE_L) begin
       case (inst[13:12])
-        `MEM_BYTE: mem_opt = 3'b001;
-        `MEM_HALF: mem_opt = 3'b011;
-        `MEM_WORD: mem_opt = 3'b111;
-        default:   mem_opt = '0;
+        `MEM_BYTE: mem_opt = `BUS_QUAR;
+        `MEM_HALF: mem_opt = `BUS_HALF;
+        `MEM_WORD: mem_opt = `BUS_FULL;
+        default:   mem_opt = `BUS_NULL;
       endcase
-    end
+    end else mem_opt = `BUS_NULL;
   end
 
   //branch
@@ -146,9 +153,63 @@ module decode(
             branch = `BRANCH_BGE;
         endcase
       end
+      default: branch = `BRANCH_NIL;
     endcase
   end
 
 endmodule
+
+module load_sext (
+  input   wire    `WIDE(`XLEN)  current,
+  input   wire    `WIDE(3)      mem_mode,
+  input   wire    `WIDE(2)      low_addr,
+  input   wire                  mem_signed,
+  output  reg     `WIDE(`XLEN)  target
+);
+
+  always @(*) begin
+    case (low_addr)
+      2'b00: target = current;
+      2'b01: target = current >> (`XLEN/4);
+      2'b10: target = current >> (`XLEN/2);
+      2'b11: target = current >> ((`XLEN/2) + (`XLEN/4));
+      default: ;
+    endcase
+    if (mem_signed) begin
+      case (mem_mode)
+        `BUS_HALF: target |= {{(`XLEN/2) {target[(`XLEN/2)-1]}}, {(`XLEN/2) {1'b0}}};
+        `BUS_QUAR: target |= {{((`XLEN/2) + (`XLEN/4)) {target[(`XLEN/4)-1]}}, {(`XLEN/4) {1'b0}}};
+        default: target |= `XLEN'b0; 
+      endcase
+    end
+  end
+
+endmodule
+
+module save_sext (
+  input   wire    `WIDE(`XLEN)  current,
+  input   wire    `WIDE(3)      mem_mode,
+  input   wire    `WIDE(2)      low_addr,
+  output  reg     `WIDE(`XLEN)  target
+);
+
+
+  always @(*) begin
+    case (mem_mode)
+      `BUS_HALF: target = {{(`XLEN/2) {1'b0}}, `BITRANGE(current, `XLEN/2, 0)};
+      `BUS_QUAR: target = {{((`XLEN/2) + (`XLEN/4)) {1'b0}}, `BITRANGE(current, `XLEN/4, 0)};
+      default: target = current; 
+    endcase
+    case (low_addr)
+      2'b00: target = target;
+      2'b01: target = target << (`XLEN/4);
+      2'b10: target = target << (`XLEN/2);
+      2'b11: target = target << ((`XLEN/2) + (`XLEN/4));
+      default: ;
+    endcase
+  end
+
+endmodule
+  
 
 `endif
