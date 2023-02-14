@@ -3,8 +3,11 @@
 `define _MAINMEM
 
 
-`ifndef _DATA
-`define _DATA(NO) `"C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data-NO.txt`"
+`ifndef _MEMDIR   
+`define _DATA0 `"C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data-0.txt`"
+`define _DATA1 `"C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data-1.txt`"
+`define _DATA2 `"C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data-2.txt`"
+`define _DATA3 `"C:/Users/Bardi/Work/Hardware/Shadow/memories/image/tests/data-3.txt`"
 `endif
 
 `include "uibi.sv"
@@ -77,10 +80,10 @@ module ram #(
             memory[addr] <= datain;
     initial begin
         case (ram_no)
-          0: $readmemh(`_DATA(0), memory, 0, size-1);
-          1: $readmemh(`_DATA(1), memory, 0, size-1);
-          2: $readmemh(`_DATA(2), memory, 0, size-1);
-          3: $readmemh(`_DATA(3), memory, 0, size-1);
+          0: $readmemh(`_DATA0, memory, 0, size-1);
+          1: $readmemh(`_DATA1, memory, 0, size-1);
+          2: $readmemh(`_DATA2, memory, 0, size-1);
+          3: $readmemh(`_DATA3, memory, 0, size-1);
           default: ;
         endcase
     end
