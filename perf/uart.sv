@@ -7,7 +7,7 @@
 
 module uart #
 (
-  parameter clock_freq = 100000000,
+  parameter clock_freq = `SYS_FREQ,
   parameter baud_rate = 115200,
   parameter baud_clock_nr = clock_freq / baud_rate
 )(
@@ -44,7 +44,8 @@ module uart #
   
   //ro status[0]: tx status 1 busy
   //rw status[1]: rx status 1 ready
-  reg `WIDE(`XLEN) uart_status;
+  reg uart_status_tx, uart_status_rx;
+  wire `WIDE(`XLEN) uart_status = {30'b0, uart_status_rx, uart_status_tx};
   
   //rw baud_clock_nr
   reg `WIDE(`XLEN) uart_baud;
@@ -84,37 +85,33 @@ module uart #
       uart_ctrl   <= '0;
       uart_baud   <= baud_clock_nr;
       uart_txdata <= '0;
-      `BITRANGE(uart_status, `XLEN, 1) <= '0;
+      uart_status_rx <= '0;
     end else if(bus_req && bus_wen) begin
       case (`UART_ADDR)
         UART_CTRL: uart_ctrl <= bus_dat_i;
-        UART_STATUS: uart_status[1] <= bus_dat_i[1];
+        UART_STATUS: uart_status_rx <= bus_dat_i[1];
         UART_BAUD: uart_baud <= bus_dat_i;
         UART_TXDATA: begin 
-          if (uart_ctrl[0] && ~uart_status[0]) begin
+          if (uart_ctrl[0] && ~uart_status_tx) begin
             `RECEIVE_BUS_DATA(uart_txdata)
             //set tx busy
           end
         end
         default: ;
       endcase
-    end else begin
-      if (tx_ready)
-        uart_status[0] <= 1'b0;
     end
-    
   end
 
   //tx busy
   `ALWAYS_CR begin
     if (~rst) begin
-      uart_status[0] <= '0;
+      uart_status_tx <= '0;
     end else if(bus_wen && bus_req) begin
-      if((`UART_ADDR == UART_TXDATA) && uart_ctrl[0] && ~uart_status[0])
-        uart_status[0] <= 1'b1;
-      else if (tx_ready) uart_status[0] <= 1'b0;
+      if((`UART_ADDR == UART_TXDATA) && uart_ctrl[0] && ~uart_status_tx)
+        uart_status_tx <= 1'b1;
+      else if (tx_ready) uart_status_tx <= 1'b0;
     end
-    else if (tx_ready) uart_status[0] <= 1'b0;
+    else if (tx_ready) uart_status_tx <= 1'b0;
   end
 
   //tx valid
@@ -122,7 +119,7 @@ module uart #
     if (~rst) begin
       tx_valid <= '0;
     end else if(bus_wen && bus_req) begin
-      if((`UART_ADDR == UART_TXDATA) && uart_ctrl[0] && ~uart_status[0])
+      if((`UART_ADDR == UART_TXDATA) && uart_ctrl[0] && ~uart_status_tx)
         tx_valid <= 1'b1;
       else tx_valid <= 1'b0;
     end
@@ -139,7 +136,7 @@ module uart #
       state     <= BUS_IDLE;
       cycle_cnt <= '0;
       bit_cnt   <= '0;
-      tx_reg    <= '0;
+      tx_reg    <= '1;
       tx_ready  <= '0;
     end else begin
       if (state == BUS_IDLE) begin

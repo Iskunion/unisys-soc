@@ -151,6 +151,8 @@ module decode(
             branch = `BRANCH_BLT;
           `INST_BGE, `INST_BGEU:
             branch = `BRANCH_BGE;
+          default:
+            branch = `BRANCH_NIL;
         endcase
       end
       default: branch = `BRANCH_NIL;

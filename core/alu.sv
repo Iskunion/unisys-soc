@@ -28,17 +28,20 @@ module alu(
                 if(~ALUext)
                 begin
                     {carry, aluresult} = dataa + datab;
+                    less = '0;
                     zero = (!aluresult);
                 end
                 else 
                 begin
                     {carry, aluresult} = dataa + ~datab + 1;
+                    less = '0;
                     zero = (!aluresult);
                 end
             end
         `ALU_SLL:
             begin
                 aluresult = dataa << datab[4:0];
+                less = '0;
                 zero = (!aluresult);
             end
         `ALU_SLT:
@@ -61,6 +64,7 @@ module alu(
         `ALU_XOR:
             begin 
                 aluresult = dataa ^ datab;
+                less = '0;
                 zero = (!aluresult);
             end
         `ALU_SR:
@@ -78,16 +82,19 @@ module alu(
                     temp = offset[4] ? {{16{temp[31]}}, temp[31:16]} : temp;
                 end
                 aluresult = temp;
+                less = '0;
                 zero = (!aluresult);
             end
         `ALU_OR:
             begin 
                 aluresult = dataa | datab;
+                less = '0;
                 zero = (!aluresult);
             end
         `ALU_AND:
             begin 
                 aluresult = dataa & datab;
+                less = '0;
                 zero = (!aluresult);
             end
         endcase 

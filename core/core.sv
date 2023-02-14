@@ -15,6 +15,7 @@ module core(
   output  reg   `WIDE(`XLEN)    mem_addr,  
   input   wire  `WIDE(`XLEN)    mem_dat_i,
   output  reg   `WIDE(`XLEN)    mem_dat_o,
+  output  wire  `WIDE(`XLEN)    pc_debug,
   input   wire                  mem_ready
 );
 
@@ -32,6 +33,7 @@ module core(
   //IF
   reg pcg_isjalr, pcg_branch, pc_reg_en; 
   wire `WIDE(`XLEN) pcg_offset, pcg_jalr_reg, pc_out, pc_now;
+  assign pc_debug = pc_now;
 
   pc_reg pc_reg_0(.*);
 

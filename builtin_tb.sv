@@ -23,7 +23,7 @@ initial begin
 end
 
 unisys unisys_1(
-  .clk(clk),
+  .ext_clock(clk),
   .rst(rst),
   .uart_rx(1'b0)
 );

@@ -9,6 +9,7 @@ module cpu(
   input wire clk,
   input wire rst,
   input wire intr,
+  output wire `WIDE(`XLEN) pc_debug,
   `UIBI_MASTER
 );
 
@@ -25,6 +26,7 @@ module cpu(
     .clk(clk),
     .rst(rst),
     .intr(intr),
+    .pc_debug(pc_debug),
     .mem_wen(mem_wen),
     .mem_mode(mem_mode),
     .mem_addr(mem_addr),

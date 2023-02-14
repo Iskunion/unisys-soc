@@ -10,12 +10,12 @@ IVERILOG_FLAGS = -Wall -I core -I perf -I . -g2012 -DSIMTIME=$(SIMTIME) -D_MEMDI
 	-D_DATA3=\`\"$(MEM_DIR)/data-3.txt\`\"
 
 pre-compile:
-	@iverilog -E $(IVERILOG_FLAGS) -o build/unisys_pre.sv unisys.sv
+	@iverilog -E $(IVERILOG_FLAGS) -D_IMPLEMENT -o build/unisys_pre.sv unisys.sv
 compile:
-	@iverilog $(IVERILOG_FLAGS) -o build/unisys_pre.vexe unisys.sv
+	@iverilog $(IVERILOG_FLAGS) -D_IMPLEMENT -o build/unisys_pre.vexe unisys.sv
 
 sim-compile:
-	@iverilog $(IVERILOG_FLAGS) -o build/unisys_sim.vexe builtin_tb.sv
+	@iverilog $(IVERILOG_FLAGS) -D_IMPLEMENT -o build/unisys_sim.vexe builtin_tb.sv
 
 sim: sim-compile
 	@vvp build/unisys_sim.vexe > build/result.txt

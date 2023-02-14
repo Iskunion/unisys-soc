@@ -1,6 +1,14 @@
 `ifndef _COMMON
 `define _COMMON
 
+`ifdef _IMPLEMENT
+  `define SYS_FREQ 2000000
+`endif
+
+`ifdef _SIMULATE
+  `define SYS_FREQ 100000000
+`endif
+
 `define XLEN 32
 `define AMOUNT(name, value)\
   `define name``_WIDTH value\

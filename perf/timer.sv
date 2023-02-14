@@ -7,7 +7,7 @@
 
 module timer #
 (
-  parameter clock_freq = 100000000,
+  parameter clock_freq = `SYS_FREQ,
   parameter nr_clock_us = clock_freq / 1000000,
   parameter nr_clock_s  = clock_freq
 )(
