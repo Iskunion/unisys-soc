@@ -9,6 +9,8 @@
 `AMOUNT(SLAVE, 3)
 `AMOUNT(MASTER, 1)
 
+`define UNFOLD(NAME) `NAME
+
 `AMOUNT(RIBADDR, (`XLEN-`SLAVE_WIDTH))
 
 `define BITRANGE(name, hi, lo) name[((hi)-1):(lo)]

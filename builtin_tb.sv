@@ -1,5 +1,9 @@
 `include "unisys.sv"
 
+`ifndef SIMTIME
+`define SIMTIME 1000000
+`endif
+
 `timescale 1ns/1ps
 
 module unisys_bench();
@@ -14,7 +18,7 @@ initial begin
   rst = 0;
   #10
   rst = 1;
-  #2000000
+  #`SIMTIME
   $finish;
 end
 

@@ -29,23 +29,23 @@
   output  wire                              bus_ready\
 
 `define STDMASTER(NAME)\
-  .bus_dat_i(master_dat_o[`NAME``_NO]),\
-  .bus_dat_o(master_dat_i[`NAME``_NO]),\
-  .bus_addr(master_addr[`NAME``_NO]),\
-  .bus_num(master_num[`NAME``_NO]),\
-  .bus_req(master_req[`NAME``_NO]),\
-  .bus_wen(master_wen[`NAME``_NO]),\
-  .bus_mode(master_mode[`NAME``_NO]),\
-  .bus_ready(master_ready[`NAME``_NO])
+  .bus_dat_i(master_dat_o[`UNFOLD(NAME``_NO)]),\
+  .bus_dat_o(master_dat_i[`UNFOLD(NAME``_NO)]),\
+  .bus_addr(master_addr[`UNFOLD(NAME``_NO)]),\
+  .bus_num(master_num[`UNFOLD(NAME``_NO)]),\
+  .bus_req(master_req[`UNFOLD(NAME``_NO)]),\
+  .bus_wen(master_wen[`UNFOLD(NAME``_NO)]),\
+  .bus_mode(master_mode[`UNFOLD(NAME``_NO)]),\
+  .bus_ready(master_ready[`UNFOLD(NAME``_NO)])
 
 `define STDSLAVE(NAME)\
-  .bus_dat_i(slave_dat_o[`NAME``_NO]),\
-  .bus_dat_o(slave_dat_i[`NAME``_NO]),\
-  .bus_addr(slave_addr[`NAME``_NO]),\
-  .bus_req(slave_req[`NAME``_NO]),\
-  .bus_wen(slave_wen[`NAME``_NO]),\
-  .bus_mode(slave_mode[`NAME``_NO]),\
-  .bus_ready(slave_ready[`NAME``_NO])
+  .bus_dat_i(slave_dat_o[`UNFOLD(NAME``_NO)]),\
+  .bus_dat_o(slave_dat_i[`UNFOLD(NAME``_NO)]),\
+  .bus_addr(slave_addr[`UNFOLD(NAME``_NO)]),\
+  .bus_req(slave_req[`UNFOLD(NAME``_NO)]),\
+  .bus_wen(slave_wen[`UNFOLD(NAME``_NO)]),\
+  .bus_mode(slave_mode[`UNFOLD(NAME``_NO)]),\
+  .bus_ready(slave_ready[`UNFOLD(NAME``_NO)])
 
 //bus modes
 `define BUS_FULL  3'b111
