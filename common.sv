@@ -2,7 +2,7 @@
 `define _COMMON
 
 `ifdef _IMPLEMENT
-  `define SYS_FREQ 2000000
+  `define SYS_FREQ 50000000
 `endif
 
 `ifdef _SIMULATE

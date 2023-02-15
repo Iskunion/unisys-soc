@@ -37,8 +37,6 @@ integer i;
 `ALWAYS_CR begin
   if (unisys_1.cpu_0.core_0.current_state == 5'b00001) begin
     $display("pc: %h", unisys_1.cpu_0.core_0.pc_now);
-    // for (i = 0; i < 32; i = i + 1)
-    //   $display("reg %d : %h", i, unisys_1.cpu_0.core_0.gprfile_0.gprs[i]);
   end
 end
 
