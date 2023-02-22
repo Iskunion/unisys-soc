@@ -65,9 +65,9 @@ module vgactl(
   assign vgactl_addr = {v_addr[9:1], 8'b0} + {2'b0, v_addr[9:1], 6'b0} + {8'b0, h_addr[9:1]};
 
   //256 colors
-  assign vga_r = {`BITRANGE(vgactl_dat, 8, 5), 1'b0};
-  assign vga_g = {`BITRANGE(vgactl_dat, 5, 2), 1'b0};
-  assign vga_b = {`BITRANGE(vgactl_dat, 2, 0), 2'b0};
+  assign vga_r = {`BITRANGE(vgactl_dat, 8, 5), 1'b1};
+  assign vga_g = {`BITRANGE(vgactl_dat, 5, 2), 1'b1};
+  assign vga_b = {`BITRANGE(vgactl_dat, 2, 0), 2'b11};
 
 endmodule
 

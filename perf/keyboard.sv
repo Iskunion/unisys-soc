@@ -16,6 +16,9 @@ module keyboard (
   wire ready, overflow;
   wire `WIDE(8) data;
 
+  reg `WIDE(8) keycode, extcode;
+  reg nextdata_n;
+
   ps2Keyboard ps2Keyboard_0(
     .clk(clk),
     .clrn(rst),
@@ -23,29 +26,95 @@ module keyboard (
     .overflow(overflow),
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data),
-    .nextdata_n(~bus_req),
+    .nextdata_n(nextdata_n),
     .data(data)
   );
 
-  reg `WIDE(8) keycode, extcode;
+  typedef enum bit `WIDE(4){
+    IDLE       = 4'h1,
+    PREPARE    = 4'h4,
+    INITIAL    = 4'h2,
+    READY      = 4'h8
+  } kbd_state;
 
-  // typedef enum bit `WIDE(4){
-  //   IDLE      = 4'h1,
-  //   INITIAL   = 4'h2,
-  //   BUS_SEND_BYTE = 4'h4,
-  //   BUS_STOP      = 4'h8
-  // } bus_state;
+  kbd_state state;
 
-  // bus_state state;
-
-
-  `ALWAYS_CR begin
-  end
-
-  always @(*) begin
-    if (bus_req && rst)
-      bus_dat_o_r = {{(`XLEN-16){1'b0}}, extcode, keycode};
-    else bus_dat_o_r = '0;
+  `ALWAYS_CR if (~rst) begin
+    state       <= IDLE;
+    extcode     <= '0;
+    keycode     <= '0;
+    nextdata_n  <= 1'b1;
+    bus_dat_o_r <= '0;
+  end else begin
+    case (state)
+      IDLE: begin
+        if (ready && data == 8'haa) begin
+          state <= PREPARE;
+          extcode <= '0;
+          keycode <= '0;
+          nextdata_n <= 1'b0;
+          bus_dat_o_r <= '0;
+        end
+      end
+      PREPARE: begin
+        state <= INITIAL;
+        extcode <= '0;
+        keycode <= '0;
+        nextdata_n <= 1'b1;
+        bus_dat_o_r <= '0;
+      end
+      INITIAL: begin
+        if (ready) begin
+          if (data == 8'hf0) begin
+            state <= PREPARE;
+            extcode <= 8'hf0;
+            keycode <= '0;
+            nextdata_n <= 1'b0;
+            bus_dat_o_r <= '0;
+          end
+          else if (data != 8'he0) begin
+            if (~bus_req) begin
+              state <= READY;
+              keycode <= data;
+              nextdata_n <= 1'b0;
+              bus_dat_o_r <= {{(`XLEN-16){1'b0}}, extcode, data};
+            end
+            else begin
+              state <= PREPARE;
+              extcode <= '0;
+              keycode <= '0;
+              nextdata_n <= 1'b0;
+              bus_dat_o_r <= {{(`XLEN-16){1'b0}}, extcode, data};
+            end
+          end
+          else begin
+            state <= PREPARE;
+            keycode <= '0;
+            nextdata_n <= 1'b0;
+            bus_dat_o_r <= '0;
+          end
+        end
+        else begin
+          keycode <= '0;
+          nextdata_n <= 1'b1;
+          bus_dat_o_r <= '0;
+        end
+      end
+      READY: begin
+        if (bus_req) begin
+          state <= INITIAL;
+          extcode <= '0;
+          keycode <= '0;
+          nextdata_n <= 1'b1;
+          bus_dat_o_r <= {{(`XLEN-16){1'b0}}, extcode, keycode};
+        end
+        else begin
+          state <= READY;
+          nextdata_n <= 1'b1;
+          bus_dat_o_r <= {{(`XLEN-16){1'b0}}, extcode, keycode};
+        end
+      end
+    endcase
   end
 
 endmodule

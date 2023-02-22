@@ -133,9 +133,11 @@ module core(
         MEMORY: begin
           current_state <=    WRITE_BACK;
           mem_dat_o     <=    mem_dat_o_w;
-          mem_addr      <=    aluresult;
           mem_mode      <=    mem_opt;
           mem_wen       <=    mem_wr;
+          if (mem_load || mem_wr)
+            mem_addr    <=    aluresult;
+          else mem_addr <=    32'h80000000;
           //pc options
           pc_reg_en <= 1'b1;
           if (branch == `BRANCH_JALR)
@@ -157,6 +159,7 @@ module core(
         end
         WRITE_BACK: begin
           current_state <= INST_FETCH;
+          mem_addr <= pc_now;
           mem_wen <= 1'b0;
           pc_reg_en <= 1'b0;
           if (mem_load) begin

@@ -8,6 +8,36 @@
 
 module unisys_bench();
 
+reg ps2_clk;
+reg ps2_data;
+
+initial ps2_clk = 1'b1;
+
+parameter [31:0] kbd_clk_period = 60;
+
+task kbd_sendcode;
+  input [7:0] code; // key to be sent
+  integer i;
+  reg[10:0] send_buffer;
+  begin
+    send_buffer[0] = 1'b0;
+    // start bit
+    send_buffer[8:1] = code;
+    // code
+    send_buffer[9] = ~(^code); // odd parity bit
+    send_buffer[10] = 1'b1;
+    // stop bit
+    i = 0;
+    while( i < 11) begin
+    // set kbd_data
+      ps2_data = send_buffer[i];
+      #(kbd_clk_period/2) ps2_clk = 1'b0;
+      #(kbd_clk_period/2) ps2_clk = 1'b1;
+      i = i + 1;
+    end
+  end
+endtask
+
 reg clk = 0;
 always #5
   clk = ~clk;
@@ -22,10 +52,25 @@ initial begin
   $finish;
 end
 
+integer ix;
+
+initial begin
+  #10000
+  kbd_sendcode(8'haa);
+  #10000
+  kbd_sendcode(8'h52);
+  #10000
+  kbd_sendcode(8'hf0);
+  #10000
+  kbd_sendcode(8'h52);
+end
+
 unisys unisys_1(
   .ext_clock(clk),
   .rst(rst),
-  .uart_rx(1'b0)
+  .uart_rx(1'b0),
+  .ps2_clk(ps2_clk),
+  .ps2_data(ps2_data)
 );
 
 initial begin

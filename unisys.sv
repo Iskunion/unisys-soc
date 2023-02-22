@@ -6,6 +6,7 @@
 `include "uart.sv"
 `include "gmem.sv"
 `include "vgactl.sv"
+`include "keyboard.sv"
 `include "timer.sv"
 
 module clock_generator # (
@@ -134,6 +135,8 @@ module unisys(
   input   wire    rst,
   input   wire    uart_rx,
   output  wire    uart_tx,
+  input   wire    ps2_clk,
+  input   wire    ps2_data,
   output  wire  [15:0] LED,
   output  wire  [7:0]  HEX,
   output  wire  [7:0]  AN,
@@ -249,6 +252,14 @@ module unisys(
     .vga_hs(VGA_HS),
     .vga_vs(VGA_VS),
     `STDSLAVE(VGA)
+  );
+
+  keyboard keyboard_0(
+    .clk(clk),
+    .rst(rst),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
+    `STDSLAVE(KBD)
   );
 
 endmodule
