@@ -55,9 +55,9 @@ end
 integer ix;
 
 initial begin
-  #10000
+  #1000
   kbd_sendcode(8'haa);
-  #10000
+  #1000000
   kbd_sendcode(8'h52);
   #10000
   kbd_sendcode(8'hf0);

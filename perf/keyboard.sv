@@ -8,10 +8,14 @@ module keyboard (
   input wire rst,
   input wire ps2_clk,
   input wire ps2_data,
+  output wire overflow_o,
+  output wire `WIDE(8) keycode_o,
+  output wire `WIDE(4) state_o,
   `UIBI_SLAVE
 );
   `CONVERT_BUS_MODE
   `PROXY_BUS_DATA
+
 
   wire ready, overflow;
   wire `WIDE(8) data;
@@ -39,6 +43,10 @@ module keyboard (
 
   kbd_state state;
 
+  assign state_o = state;
+  assign overflow_o = overflow;
+  assign keycode_o = {data[7:1], ready};
+
   `ALWAYS_CR if (~rst) begin
     state       <= IDLE;
     extcode     <= '0;
@@ -48,17 +56,14 @@ module keyboard (
   end else begin
     case (state)
       IDLE: begin
-        if (ready && data == 8'haa) begin
-          state <= PREPARE;
-          extcode <= '0;
-          keycode <= '0;
-          nextdata_n <= 1'b0;
-          bus_dat_o_r <= '0;
-        end
+        state <= PREPARE;
+        extcode <= '0;
+        keycode <= '0;
+        nextdata_n <= 1'b0;
+        bus_dat_o_r <= '0;
       end
       PREPARE: begin
         state <= INITIAL;
-        extcode <= '0;
         keycode <= '0;
         nextdata_n <= 1'b1;
         bus_dat_o_r <= '0;

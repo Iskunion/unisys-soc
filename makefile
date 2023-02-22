@@ -23,7 +23,7 @@ compile:
 TARGET ?= unisys
 
 sim-compile:
-	@iverilog $(IVERILOG_FLAGS) -DBAUD_RATE=25000000 -D_SIMULATE -DTARGET=$(TARGET) -o build/unisys_sim.vexe builtin_tb.sv
+	@iverilog $(IVERILOG_FLAGS) -DBAUD_RATE=25000000 -D_IMPLEMENT -DTARGET=$(TARGET) -o build/unisys_sim.vexe builtin_tb.sv
 
 sim: sim-compile
 	@vvp build/unisys_sim.vexe > build/result.txt

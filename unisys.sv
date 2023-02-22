@@ -233,7 +233,7 @@ module unisys(
   );
 
   gmem gmem_0(
-    .clk(~clk),
+    .clk(~ext_clock),
     .rst(rst),
     .vgactl_addr(vgactl_addr),
     .vgactl_dat(vgactl_dat),
@@ -255,10 +255,13 @@ module unisys(
   );
 
   keyboard keyboard_0(
-    .clk(clk),
+    .clk(~clk),
     .rst(rst),
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data),
+    .overflow_o(LED[1]),
+    .keycode_o(LED[15:8]),
+    .state_o(LED[7:4]),
     `STDSLAVE(KBD)
   );
 
