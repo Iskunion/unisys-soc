@@ -4,6 +4,7 @@
 `include "uibi.sv"
 `include "mainmem.sv"
 `include "uart.sv"
+`include "gmem.sv"
 `include "timer.sv"
 
 module clock_generator # (
@@ -164,6 +165,10 @@ module unisys(
   //intr
   wire intr;
 
+  //gpu
+  wire `WIDE(`GMEM_WIDTH) vgactl_addr;
+  wire `WIDE(`COLOR_WIDTH) vgactl_dat;
+
   //debug
   wire clk_10KHz;
   clock_generator #(.targetfreq(10000)) clock_generator_1 (ext_clock, clk_10KHz);
@@ -213,6 +218,14 @@ module unisys(
     .rst(rst),
     .intr(intr),
     `STDSLAVE(TIMER)
+  );
+
+  gmem gmem_0(
+    .clk(~clk),
+    .rst(rst),
+    .vgactl_addr(vgactl_addr),
+    .vgactl_dat(vgactl_dat),
+    `STDSLAVE(GMEM)
   );
 
 endmodule

@@ -3,6 +3,8 @@
 
 `include "common.sv"
 
+`AMOUNT(COLOR, 8)
+
 //masters
 `define CPU_NO 0
 
