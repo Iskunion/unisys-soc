@@ -121,11 +121,13 @@ module core(
             `ALU_A_PC:    dataa <= pc_now;
             `ALU_A_ZERO:  dataa <= '0;
             `ALU_A_REG:   dataa <= radata;
+            default:      dataa <= '0;
           endcase
           case (alu_selb)
             `ALU_B_FOUR:  datab <= 32'h4;
             `ALU_B_IMM:   datab <= imm;
             `ALU_B_REG:   datab <= rbdata;
+            default:      datab <= '0;
           endcase
         end
         MEMORY: begin

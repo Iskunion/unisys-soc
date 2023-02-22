@@ -5,10 +5,14 @@
 
 `define UART_ADDR `BITRANGE(bus_addr, 5, 2)
 
+`ifndef BAUD_RATE
+  `define BAUD_RATE 115200
+`endif
+
 module uart #
 (
   parameter clock_freq = `SYS_FREQ,
-  parameter baud_rate = 115200,
+  parameter baud_rate = `BAUD_RATE,
   parameter baud_clock_nr = clock_freq / baud_rate
 )(
   input   wire  clk,

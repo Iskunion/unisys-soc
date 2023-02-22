@@ -29,20 +29,17 @@ module keyboard (
 
   reg `WIDE(8) keycode, extcode;
 
-  `ALWAYS_CR begin
-    if (~rst) keycode <= '0;
-    else if(ready && ~data[7])
-      keycode <= data;
-    else keycode <= '0; 
-  end
+  // typedef enum bit `WIDE(4){
+  //   IDLE      = 4'h1,
+  //   INITIAL   = 4'h2,
+  //   BUS_SEND_BYTE = 4'h4,
+  //   BUS_STOP      = 4'h8
+  // } bus_state;
+
+  // bus_state state;
+
 
   `ALWAYS_CR begin
-    if (~rst) extcode <= '0;
-    else begin
-      if (ready) begin
-        
-      end
-    end
   end
 
   always @(*) begin
@@ -62,8 +59,8 @@ module ps2Keyboard(clk, clrn, ps2_clk, ps2_data, nextdata_n, data, ready, overfl
     output reg overflow; // fifo overflow
     // internal signal, for test
     reg [9:0] buffer; // ps2_data bits
-    reg [7:0] fifo[7:0];// data fifo
-    reg [2:0] w_ptr, r_ptr;// fifo write and read pointers
+    reg [7:0] fifo[63:0];// data fifo
+    reg [5:0] w_ptr, r_ptr;// fifo write and read pointers
     reg [3:0] count; // count ps2_data bits
     // detect falling edge of ps2_clk
     reg [2:0] ps2_clk_sync;
@@ -92,17 +89,17 @@ module ps2Keyboard(clk, clrn, ps2_clk, ps2_data, nextdata_n, data, ready, overfl
             end
             if (ready) // ready to output next data
                 if (!nextdata_n) begin //read next data
-                    r_ptr <= r_ptr + 3'b1;
-                    if (w_ptr == (r_ptr + 3'b1)) //empty
+                    r_ptr <= r_ptr + 6'b1;
+                    if (w_ptr == (r_ptr + 6'b1)) //empty
                         ready <= 0;
                 end
             if (sampling) begin
                 if (count == 10) begin
                     if ((buffer[0] == 0) && (ps2_data) && (^buffer[9:1])) begin
                         fifo[w_ptr] <= buffer[8:1]; // keyboard scan code
-                        w_ptr <= w_ptr + 3'b1;
+                        w_ptr <= w_ptr + 6'b1;
                         ready <= 1;
-                        overflow <= overflow | (r_ptr == (w_ptr + 3'b1));
+                        overflow <= overflow | (r_ptr == (w_ptr + 6'b1));
                     end
                     count <= 0;
                 end 

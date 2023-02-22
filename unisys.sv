@@ -5,6 +5,7 @@
 `include "mainmem.sv"
 `include "uart.sv"
 `include "gmem.sv"
+`include "vgactl.sv"
 `include "timer.sv"
 
 module clock_generator # (
@@ -135,7 +136,12 @@ module unisys(
   output  wire    uart_tx,
   output  wire  [15:0] LED,
   output  wire  [7:0]  HEX,
-  output  wire  [7:0]  AN
+  output  wire  [7:0]  AN,
+  output  wire  [3:0]  VGA_R,
+  output  wire  [3:0]  VGA_G,
+  output  wire  [3:0]  VGA_B,
+  output  wire         VGA_HS,
+  output  wire         VGA_VS
 );
 
   assign LED[0] = uart_tx;
@@ -157,6 +163,9 @@ module unisys(
   wire clk;
   clock_generator clock_generator_0 (ext_clock, clk);
 `endif
+
+  wire vga_clk;
+  clock_generator #(.targetfreq(25000000)) clock_generator_vga (ext_clock, vga_clk);
 
 `ifdef _SIMULATE
   wire clk = ext_clock;
@@ -226,6 +235,20 @@ module unisys(
     .vgactl_addr(vgactl_addr),
     .vgactl_dat(vgactl_dat),
     `STDSLAVE(GMEM)
+  );
+
+  vgactl vgactl_0(
+    .clk(~clk),
+    .rst(rst),
+    .vgactl_addr(vgactl_addr),
+    .vgactl_dat(vgactl_dat),
+    .vgaclk(~vga_clk),
+    .vga_r(VGA_R),
+    .vga_g(VGA_G),
+    .vga_b(VGA_B),
+    .vga_hs(VGA_HS),
+    .vga_vs(VGA_VS),
+    `STDSLAVE(VGA)
   );
 
 endmodule
