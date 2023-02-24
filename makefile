@@ -32,4 +32,4 @@ run: sim
 	@gtkwave build/wave.vcd
 
 count:
-	@echo lines: `find . | grep .sv | xargs cat | grep -v // | grep -v ^$$ | wc -l`
+	@echo lines: `find . | grep -v build | grep .sv | xargs cat | grep -v // | grep -v ^$$ | wc -l`

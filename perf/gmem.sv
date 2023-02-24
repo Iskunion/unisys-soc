@@ -83,10 +83,9 @@ module gram #(
     end
     
     always @(posedge memclk) begin
-      if (wen) begin
-          memory[bus_addr] <= datain;
-        dataout <= memory[vgactl_addr];
-      end
+      if (wen)
+        memory[bus_addr] <= datain;
+      dataout <= memory[vgactl_addr];
     end
 
     initial begin
